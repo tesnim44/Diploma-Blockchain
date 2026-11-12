@@ -1,0 +1,21 @@
+# Dependances et build
+node_modules
+artifacts
+cache
+typechain-types
+coverage
+coverage.json
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+
+# Fichiers du systeme et de l'editeur
+.DS_Store
+Thumbs.db
+.vscode/
