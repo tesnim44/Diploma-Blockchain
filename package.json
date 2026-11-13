@@ -26,5 +26,9 @@
     "ethers": "^6.17.0",
     "express": "^5.3.0",
     "mongoose": "^9.12.1"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^6.1.2",
+    "hardhat": "^2.29.2"
   }
 }
