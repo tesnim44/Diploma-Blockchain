@@ -76,6 +76,7 @@ button:focus-visible { outline: 3px solid #9cc0f5; outline-offset: 2px; }
 #result.ok  { background: var(--ok-bg);  border-color: var(--ok); }  #result.ok h3  { color: var(--ok); }  #result.ok .icon  { background: var(--ok); }
 #result.bad { background: var(--bad-bg); border-color: var(--bad); } #result.bad h3 { color: var(--bad); } #result.bad .icon { background: var(--bad); }
 #result.unk { background: var(--unk-bg); border-color: var(--unk); } #result.unk h3 { color: var(--unk); } #result.unk .icon { background: var(--unk); }
+#result.error { background: #fff4d6; border-color: #b7791f; } #result.error h3 { color: #805515; } #result.error .icon { background: #b7791f; }
 #result dl { grid-column: 2; margin: 6px 0 0; display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; }
 #result dt { font-weight: 600; } #result dd { margin: 0; }
 
