@@ -15,10 +15,23 @@
 
     <header class="header">
         <div class="logo">DiplomaChain</div>
-        <div class="header-right">
-            <span>Administration universitaire</span>
-            <button id="connectWallet">Connecter MetaMask</button>
-        </div>
+        
+<div class="header-right">
+    <span>Administration universitaire</span>
+
+    <span id="walletAddress">
+        Wallet not connected
+    </span>
+
+    <span id="networkName">
+        Network: Not connected
+    </span>
+
+    <button type="button" id="connectWallet">
+        Connect MetaMask
+    </button>
+</div>
+
     </header>
 
     <main class="container">
@@ -137,7 +150,7 @@
 
     </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.5/dist/ethers.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.17.0/dist/ethers.umd.min.js"></script>
     <script src="app.js"></script>
     
 </body>

@@ -153,3 +153,224 @@ document.getElementById("refreshDiplomas")
 loadDiplomas();
 
 
+// ==================================
+// SMART CONTRACT CONFIGURATION
+// ==================================
+
+let contractAddress = null;
+let contractABI = null;
+let diplomaContract = null;
+
+async function loadContractConfiguration() {
+    try {
+        const response = await fetch("../../contracts/deployment.json");
+
+        if (!response.ok) {
+            throw new Error("Cannot load deployment.json");
+        }
+
+        const deployment = await response.json();
+
+        if (deployment.chainId !== 11155111) {
+            throw new Error("Unexpected blockchain network.");
+        }
+
+        contractAddress = deployment.address;
+        contractABI = deployment.abi;
+
+        console.log("Contract address:", contractAddress);
+        console.log("Contract network:", deployment.network);
+
+        return deployment;
+
+    } catch (error) {
+        console.error("Contract configuration error:", error);
+        throw error;
+    }
+}
+
+
+// ==================================
+// METAMASK CONNECTION
+// ==================================
+
+let walletProvider = null;
+let walletSigner = null;
+let walletAddress = null;
+
+async function connectMetaMask() {
+
+    const walletButton = document.getElementById("connectWallet");
+    const walletLabel = document.getElementById("walletAddress");
+    const networkLabel = document.getElementById("networkName");
+
+    try {
+
+        if (!window.ethereum) {
+            throw new Error("MetaMask is not installed.");
+        }
+
+        walletButton.disabled = true;
+        walletButton.textContent = "Connecting...";
+
+        // 1. Load contract configuration
+        const deployment = await loadContractConfiguration();
+
+        // 2. Connect to MetaMask
+        walletProvider = new ethers.BrowserProvider(window.ethereum);
+
+        const accounts = await walletProvider.send(
+            "eth_requestAccounts",
+            []
+        );
+
+        if (!accounts.length) {
+            throw new Error("No wallet account selected.");
+        }
+
+        walletSigner = await walletProvider.getSigner();
+
+        walletAddress = await walletSigner.getAddress();
+
+        // Switch automatically to Sepolia
+try {
+    await window.ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: "0xaa36a7" }]
+    });
+} catch (error) {
+
+    // Sepolia is not added to MetaMask
+    if (error.code === 4902) {
+        await window.ethereum.request({
+            method: "wallet_addEthereumChain",
+            params: [{
+                chainId: "0xaa36a7",
+                chainName: "Sepolia",
+                nativeCurrency: {
+                    name: "Sepolia Ether",
+                    symbol: "ETH",
+                    decimals: 18
+                },
+                rpcUrls: ["https://ethereum-sepolia-rpc.publicnode.com"],
+                blockExplorerUrls: ["https://sepolia.etherscan.io"]
+            }]
+        });
+    } else {
+        throw error;
+    }
+}
+
+// Refresh provider after switching network
+walletProvider = new ethers.BrowserProvider(window.ethereum);
+
+const network = await walletProvider.getNetwork();
+
+if (Number(network.chainId) !== 11155111) {
+    throw new Error("MetaMask is not connected to Sepolia.");
+}
+
+// Get signer after switching
+walletSigner = await walletProvider.getSigner();
+walletAddress = await walletSigner.getAddress();
+
+        // 4. Connect to the deployed Smart Contract
+        diplomaContract = new ethers.Contract(
+            deployment.address,
+            deployment.abi,
+            walletSigner
+        );
+
+        // 5. Verify university owner
+        const ownerAddress = await diplomaContract.owner();
+
+        walletLabel.textContent =
+            walletAddress.slice(0, 6) + "..." + walletAddress.slice(-4);
+
+        networkLabel.textContent = "Network: Sepolia";
+
+        if (walletAddress.toLowerCase() !== ownerAddress.toLowerCase()) {
+            diplomaContract = null;
+
+            throw new Error(
+                "Access denied: this wallet is not the contract owner."
+            );
+        }
+
+        walletButton.textContent = "University Wallet Connected";
+
+        showTransactionStatus(
+            "MetaMask connected successfully!",
+            "success"
+        );
+
+        console.log("Wallet:", walletAddress);
+        console.log("Contract:", deployment.address);
+        console.log("Owner:", ownerAddress);
+        console.log("Network:", network.chainId.toString());
+
+    } catch (error) {
+
+        console.error("MetaMask error:", error);
+
+        showTransactionStatus(error.message, "error");
+
+        walletButton.textContent = "Connect MetaMask";
+
+        walletLabel.textContent = "Wallet not connected";
+        networkLabel.textContent = "Network: Not connected";
+
+        walletProvider = null;
+        walletSigner = null;
+        walletAddress = null;
+        diplomaContract = null;
+
+    } finally {
+        walletButton.disabled = false;
+    }
+}
+
+
+// Connect button event
+document.getElementById("connectWallet")
+    .addEventListener("click", connectMetaMask);
+
+
+// Detect account changes
+if (window.ethereum) {
+
+    window.ethereum.on("accountsChanged", () => {
+
+        walletProvider = null;
+        walletSigner = null;
+        walletAddress = null;
+        diplomaContract = null;
+
+        document.getElementById("walletAddress").textContent =
+            "Wallet not connected";
+
+        document.getElementById("networkName").textContent =
+            "Network: Not connected";
+
+        document.getElementById("connectWallet").textContent =
+            "Connect MetaMask";
+
+        showTransactionStatus(
+            "Wallet changed. Please reconnect.",
+            "pending"
+        );
+    });
+
+    window.ethereum.on("chainChanged", () => {
+        window.location.reload();
+    });
+}
+
+
+// Transaction status helper
+function showTransactionStatus(message, type) {
+
+    statusMessage.textContent = message;
+    statusMessage.className = "status " + type;
+
+}

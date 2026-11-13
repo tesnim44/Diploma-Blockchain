@@ -259,9 +259,11 @@ button:disabled {
         flex-direction: column;
     }
 
-    .header-right {
-        flex-wrap: wrap;
-    }
+    #walletAddress,
+#networkName {
+    font-size: 12px;
+    color: #d5deeb;
+}
 
     .container {
         width: 94%;
