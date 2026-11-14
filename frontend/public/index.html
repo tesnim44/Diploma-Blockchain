@@ -52,13 +52,13 @@
 
     <button id="verify" disabled>Vérifier le diplôme</button>
 
-    <ol id="progress" class="progress" hidden>
+    <ol id="progress" class="progress" aria-live="polite" aria-label="Progression de la vérification" hidden>
       <li data-step="1">Lecture du fichier</li>
       <li data-step="2">Calcul de l'empreinte</li>
       <li data-step="3">Consultation de la blockchain</li>
     </ol>
 
-    <section id="result" aria-live="polite" hidden></section>
+    <section id="result" role="status" aria-live="polite" aria-atomic="true" hidden></section>
 
     <button id="reset" class="ghost wide" type="button" hidden>Vérifier un autre diplôme</button>
   </section>
