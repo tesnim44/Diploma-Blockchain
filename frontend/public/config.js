@@ -1,5 +1,5 @@
 // Adresse du smart contract déployé sur Sepolia
-const CONTRACT_ADDRESS = "0xc4569418D59C829EB90F79012AdB715cE9137Ed1";
+const CONTRACT_ADDRESS = "0x718F930453442896A0514d0c099C90BC95962e0A";
 
 // Adresse RPC du réseau Sepolia
 const SEPOLIA_RPC_URL = "https://ethereum-sepolia-rpc.publicnode.com";
