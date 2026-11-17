@@ -108,7 +108,17 @@ function setEtape(n) {
   });
 }
 
+function effacerVerification() {
+  resultEl.replaceChildren();
+  resultEl.className = "";
+  resultEl.hidden = true;
+  progress.querySelectorAll("li").forEach(li => li.classList.remove("done", "active"));
+  progress.hidden = true;
+  resetBtn.hidden = true;
+}
+
 function choisir(f) {
+  effacerVerification();
   const isPdf = f && (f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf"));
   if (!isPdf || f.size === 0) {
     fichier = null;
@@ -118,7 +128,6 @@ function choisir(f) {
     $("fileInfo").hidden = true;
     zone.classList.remove("filled");
     btn.disabled = true;
-    resultEl.hidden = true;
     afficherErreur("Sélectionnez un fichier PDF valide et non vide.");
     return;
   }
@@ -130,7 +139,6 @@ function choisir(f) {
   $("fileInfo").hidden = false;
   zone.classList.add("filled");
   btn.disabled = false;
-  resultEl.hidden = true; progress.hidden = true; resetBtn.hidden = true;
 }
 
 input.addEventListener("change", () => choisir(input.files[0]));
@@ -144,16 +152,17 @@ resetBtn.addEventListener("click", () => {
   $("dropText").textContent = "Glissez le PDF ici";
   $("dropSub").textContent = "ou cliquez pour le choisir (PDF uniquement)";
   zone.classList.remove("filled");
-  $("fileInfo").hidden = true; resultEl.hidden = true; progress.hidden = true; resetBtn.hidden = true;
+  $("fileInfo").hidden = true;
+  effacerVerification();
   btn.disabled = true;
   $("verifier").scrollIntoView({ behavior: "smooth" });
 });
 
 btn.addEventListener("click", async () => {
   if (!fichier) return;
+  effacerVerification();
   btn.disabled = true;
   btn.textContent = "Vérification en cours...";
-  resultEl.hidden = true;
   try {
     if (!window.isSecureContext || !globalThis.crypto?.subtle) {
       throw new Error("Le calcul SHA-256 nécessite une page HTTPS ou localhost et un navigateur compatible.");
