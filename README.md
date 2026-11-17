@@ -29,13 +29,12 @@
     transactions](#14-intégration-metamask-et-gestion-des-transactions)
 -   [15. Répartition des rôles et intégration
     d'équipe](#15-répartition-des-rôles-et-intégration-déquipe)
--   [16. Démonstration proposée pour la
-    soutenance](#16-démonstration-proposée-pour-la-soutenance)
--   [17. Dépannage](#17-dépannage)
--   [18. Sécurité et bonnes pratiques](#18-sécurité-et-bonnes-pratiques)
--   [19. Limites et améliorations
-    possibles](#19-limites-et-améliorations-possibles)
--   [20. Livrables](#20-livrables)
+-  
+-   [16. Dépannage](#16-dépannage)
+-   [17. Sécurité et bonnes pratiques](#17-sécurité-et-bonnes-pratiques)
+-   [18. Limites et améliorations
+    possibles](#18-limites-et-améliorations-possibles)
+-   [19. Livrables](#19-livrables)
 
 ------------------------------------------------------------------------
 
@@ -844,72 +843,10 @@ les conflits en vérifiant les fichiers concernés. Éviter
 remplacer l'historique distant et rendre les commits des coéquipiers
 inaccessibles depuis cette branche.
 
-------------------------------------------------------------------------
-
-## 16. Démonstration proposée pour la soutenance
-
-Préparer un PDF de test et un portefeuille Sepolia disposant de
-suffisamment d'ETH de test.
-
-### Scénario conseillé
-
-1.  Présenter le schéma d'architecture et les rôles des composants.
-2.  Montrer le Smart Contract et expliquer `onlyOwner`.
-3.  Lancer les tests Hardhat et présenter le résultat.
-4.  Démarrer MongoDB et le backend.
-5.  Ouvrir l'interface Admin.
-6.  Connecter MetaMask au réseau Sepolia avec le compte propriétaire.
-7.  Saisir les informations d'un étudiant et sélectionner un PDF.
-8.  Émettre le diplôme et confirmer la transaction dans MetaMask.
-9.  Montrer le hash de transaction et l'enregistrement dans le tableau
-    de bord.
-10. Vérifier le même PDF depuis l'interface publique : résultat attendu,
-    authentique.
-11. Tester un autre PDF : résultat attendu, introuvable.
-12. Si la révocation est disponible dans l'application, révoquer le
-    diplôme et refaire la vérification : résultat attendu, révoqué.
-
-### Questions possibles du jury
-
-**Pourquoi utiliser SHA-256 ?**\
-Pour obtenir une empreinte du fichier. Une modification du PDF produit
-une empreinte différente, ce qui permet de détecter une altération.
-
-**Pourquoi enregistrer le hash plutôt que le PDF complet sur la
-blockchain ?**\
-Le hash est beaucoup plus léger et permet de vérifier l'intégrité sans
-publier le document complet sur une blockchain publique.
-
-**Pourquoi utiliser `onlyOwner` ?**\
-Pour empêcher un compte non autorisé d'émettre ou de révoquer un
-diplôme.
-
-**Quelle est la différence entre `verifierDiplome` et `emettreDiplome`
-?**\
-`verifierDiplome` est une lecture (`view`) qui ne modifie pas l'état du
-contrat. `emettreDiplome` modifie l'état et nécessite une transaction
-signée.
-
-**Pourquoi utiliser MongoDB si les données sont déjà sur la blockchain
-?**\
-MongoDB facilite la gestion et l'affichage des métadonnées. La preuve
-d'authenticité reste vérifiée sur la blockchain.
-
-**Que se passe-t-il si MongoDB échoue après une émission confirmée ?**\
-Le diplôme reste enregistré sur la blockchain. Il faut corriger la
-sauvegarde des métadonnées sans réémettre le même diplôme.
-
-**Que signifie révoquer un diplôme ?**\
-Le contrat conserve l'enregistrement, mais passe son statut à invalide.
-La révocation ne supprime pas l'historique.
-
-**Un QR Code suffit-il à prouver qu'un PDF est authentique ?**\
-Non, pas s'il ne contient qu'un identifiant. Pour vérifier le fichier
-présenté, il faut recalculer son hash et le comparer au hash enregistré.
 
 ------------------------------------------------------------------------
 
-## 17. Dépannage
+## 16. Dépannage
 
   --------------------------------------------------------------------------
   Problème                Cause possible          Vérification / solution
@@ -984,7 +921,7 @@ git status
 
 ------------------------------------------------------------------------
 
-## 18. Sécurité et bonnes pratiques
+## 17. Sécurité et bonnes pratiques
 
 -   Ne jamais ajouter `.env` au dépôt Git.
 -   Ne jamais publier une clé privée ou une phrase de récupération
@@ -1005,7 +942,7 @@ git status
 
 ------------------------------------------------------------------------
 
-## 19. Limites et améliorations possibles
+## 18. Limites et améliorations possibles
 
 ### Limites
 
@@ -1041,7 +978,7 @@ git status
 
 ------------------------------------------------------------------------
 
-## 20. Livrables
+## 19. Livrables
 
 Les livrables attendus pour une présentation complète sont :
 
