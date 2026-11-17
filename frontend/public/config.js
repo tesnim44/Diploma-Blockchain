@@ -1,8 +1,10 @@
-// À remplir par A après le déploiement (jour 3).
-// Tant que CONTRACT_ADDRESS est vide, la page tourne en MODE DÉMO (fausses données).
-const CONTRACT_ADDRESS = "";
+// Adresse du smart contract déployé sur Sepolia
+const CONTRACT_ADDRESS = "0xc4569418D59C829EB90F79012AdB715cE9137Ed1";
+
+// Adresse RPC du réseau Sepolia
 const SEPOLIA_RPC_URL = "https://ethereum-sepolia-rpc.publicnode.com";
+
+// ABI : fonction nécessaire pour vérifier un diplôme
 const ABI = [
-  // Colle ici l'ABI fournie par A. Minimum nécessaire pour D :
-  "function verifierDiplome(bytes32 _hash) view returns (bool existe, bool valide, string nom, uint256 date)"
+    "function verifierDiplome(bytes32 _hash) view returns (bool existe, bool valide, string nom, uint256 date)"
 ];
