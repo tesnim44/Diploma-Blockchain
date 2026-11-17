@@ -96,38 +96,20 @@ données centralisée ?
 
 ## 3. Fonctionnement général
 
+Les diagrammes ci-dessous sont des fichiers SVG versionnés dans le dépôt. Cette méthode évite les erreurs de rendu Mermaid dans certains aperçus Markdown et permet leur affichage direct sur GitHub et dans les lecteurs Markdown compatibles.
+
+
 ### 3.1 Parcours d'émission
 
-``` mermaid
-flowchart TD
-    A["Administrateur"] --> B["Interface Admin"]
-    B --> C["Saisie des informations et sélection du PDF"]
-    C --> D["Calcul SHA-256 dans le navigateur"]
-    D --> E["Connexion MetaMask"]
-    E --> F["Vérification du réseau et du compte"]
-    F --> G["Appel du Smart Contract"]
-    G --> H{"Règles respectées ?"}
-    H -- "Non" --> I["Transaction refusée / message d'erreur"]
-    H -- "Oui" --> J["Émission sur Sepolia"]
-    J --> K["Attente de confirmation"]
-    K --> L["Enregistrement des métadonnées dans MongoDB"]
-    L --> M["Mise à jour du tableau de bord"]
-```
+![Diagramme du parcours d'émission](docs/diagrams/parcours-emission.svg)
+
+*Figure 1 — Émission : le hash est enregistré sur Sepolia après validation et signature par l'administrateur. Les métadonnées sont ensuite sauvegardées dans MongoDB.*
 
 ### 3.2 Parcours de vérification
 
-``` mermaid
-flowchart TD
-    A["Recruteur / vérificateur"] --> B["Interface publique ou QR Code"]
-    B --> C["Obtention du fichier ou de son identifiant"]
-    C --> D["Calcul SHA-256 si le PDF est fourni"]
-    D --> E["Lecture du Smart Contract"]
-    E --> F{"Diplôme enregistré ?"}
-    F -- "Non" --> G["NON AUTHENTIQUE / INTROUVABLE"]
-    F -- "Oui" --> H{"Diplôme valide ?"}
-    H -- "Oui" --> I["AUTHENTIQUE"]
-    H -- "Non" --> J["RÉVOQUÉ"]
-```
+![Diagramme du parcours de vérification](docs/diagrams/parcours-verification.svg)
+
+*Figure 2 — Vérification : l'interface publique calcule le hash du PDF et lit le contrat. MongoDB n'intervient pas dans la décision d'authenticité.*
 
 > **Important :** un QR Code qui contient uniquement un identifiant
 > permet de retrouver un enregistrement, mais ne prouve pas à lui seul
