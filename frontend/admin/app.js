@@ -437,185 +437,76 @@ diplomaForm.addEventListener("submit", async (event) => {
 
 
 /* =====================================================
-   8. DIPLOMA CARDS + ON-CHAIN STATUS + REVOCATION
+   8. LOAD DIPLOMAS FROM MONGODB
 ===================================================== */
 
-let diplomaRecords = [];
-let readOnlyContract = null;
-
-async function getReadOnlyContract() {
-    if (readOnlyContract) return readOnlyContract;
-    const response = await fetch("../../contracts/deployment.json");
-    if (!response.ok) throw new Error("Configuration du contrat indisponible.");
-    const deployment = await response.json();
-    if (Number(deployment.chainId) !== 11155111) {
-        throw new Error("Le contrat configuré n'est pas sur Sepolia.");
-    }
-    const provider = new ethers.JsonRpcProvider("https://ethereum-sepolia-rpc.publicnode.com");
-    readOnlyContract = new ethers.Contract(deployment.address, deployment.abi, provider);
-    return readOnlyContract;
-}
-
-async function getDiplomaStatus(pdfHash) {
-    try {
-        const contract = await getReadOnlyContract();
-        const result = await contract.verifierDiplome("0x" + pdfHash.replace(/^0x/, ""));
-        if (!result.existe) return { key: "unknown", label: "Introuvable" };
-        if (!result.valide) return { key: "revoked", label: "Révoqué" };
-        return { key: "valid", label: "Authentique" };
-    } catch (error) {
-        console.warn("On-chain status unavailable:", error);
-        return { key: "unknown", label: "Non vérifié" };
-    }
-}
-
-function escapeHTML(value) {
-    return String(value ?? "").replace(/[&<>"']/g, char => ({
-        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-    })[char]);
-}
-
-function updateStats(records) {
-    document.getElementById("totalCount").textContent = records.length;
-    document.getElementById("validCount").textContent = records.filter(d => d.chainStatus?.key === "valid").length;
-    document.getElementById("revokedCount").textContent = records.filter(d => d.chainStatus?.key === "revoked").length;
-}
-
-function renderDiplomas() {
-    const grid = document.getElementById("diplomaGrid");
-    const query = document.getElementById("searchDiplomas").value.trim().toLowerCase();
-    const filter = document.getElementById("statusFilter").value;
-    const sort = document.getElementById("sortDiplomas").value;
-
-    let items = diplomaRecords.filter(d => {
-        const haystack = [d.diplomaId, d.firstName, d.lastName, d.field, d.year].join(" ").toLowerCase();
-        return haystack.includes(query) && (filter === "all" || d.chainStatus?.key === filter);
-    });
-
-    items.sort((a, b) => {
-        if (sort === "name") return (a.lastName || "").localeCompare(b.lastName || "");
-        const da = new Date(a.createdAt || 0).getTime();
-        const db = new Date(b.createdAt || 0).getTime();
-        return sort === "oldest" ? da - db : db - da;
-    });
-
-    grid.replaceChildren();
-    if (!items.length) {
-        const empty = document.createElement("div");
-        empty.className = "empty-state";
-        empty.textContent = diplomaRecords.length ? "Aucun diplôme ne correspond à votre recherche." : "Aucun diplôme enregistré pour le moment.";
-        grid.appendChild(empty);
-        return;
-    }
-
-    items.forEach(diploma => {
-        const card = document.createElement("article");
-        card.className = "diploma-card";
-        const fullName = [diploma.firstName, diploma.lastName].filter(Boolean).join(" ");
-        const status = diploma.chainStatus || { key: "unknown", label: "Non vérifié" };
-        const date = diploma.createdAt ? new Date(diploma.createdAt).toLocaleDateString("fr-FR") : "Date non disponible";
-        const canRevoke = status.key === "valid" && Boolean(walletAddress && diplomaContract);
-        card.innerHTML = `
-          <div class="diploma-card-top">
-            <span class="status-pill ${status.key}">${escapeHTML(status.label)}</span>
-            <h3>${escapeHTML(diploma.field || "Diplôme")} ${escapeHTML(diploma.year || "")}</h3>
-            <p class="diploma-subtitle">${escapeHTML(fullName)} · ${escapeHTML(diploma.diplomaId)}</p>
-          </div>
-          <div class="diploma-meta"><span>▦ ${escapeHTML(date)}</span><span>${escapeHTML(diploma.field || "Formation")}</span></div>
-          <div class="diploma-actions">
-            <span class="hash-short" title="${escapeHTML(diploma.pdfHash)}">SHA-256 · ${escapeHTML((diploma.pdfHash || "").slice(0, 14))}…</span>
-            <button class="revoke-button" type="button" data-revoke="${escapeHTML(diploma.pdfHash)}" ${canRevoke ? "" : "disabled"}>${status.key === "revoked" ? "Déjà révoqué" : "Révoquer"}</button>
-          </div>`;
-        grid.appendChild(card);
-    });
-
-    grid.querySelectorAll("[data-revoke]").forEach(button => {
-        button.addEventListener("click", () => revokeDiploma(button.dataset.revoke, button));
-    });
-}
-
 async function loadDiplomas() {
+
+    const tableBody = document.getElementById("diplomasTableBody");
     const dashboardStatus = document.getElementById("dashboardStatus");
-    dashboardStatus.textContent = "Chargement des diplômes et vérification des statuts blockchain…";
+
+    dashboardStatus.textContent = "Loading diplomas...";
+
+    tableBody.replaceChildren();
+
     try {
+
         const response = await fetch(API_URL);
-        if (!response.ok) throw new Error("Impossible de récupérer les diplômes depuis le backend.");
-        const records = await response.json();
-        diplomaRecords = await Promise.all(records.map(async diploma => ({
-            ...diploma,
-            chainStatus: await getDiplomaStatus(diploma.pdfHash)
-        })));
-        updateStats(diplomaRecords);
-        renderDiplomas();
-        dashboardStatus.textContent = `${diplomaRecords.length} diplôme(s) chargé(s). Les statuts sont lus sur Sepolia.`;
-        renderHistory(diplomaRecords);
+
+        if (!response.ok) {
+            throw new Error("Unable to retrieve diplomas.");
+        }
+
+        const diplomas = await response.json();
+
+        if (diplomas.length === 0) {
+            dashboardStatus.textContent = "No diplomas registered yet.";
+            return;
+        }
+
+        diplomas.forEach((diploma) => {
+
+            const row = document.createElement("tr");
+
+            const values = [
+                diploma.diplomaId,
+                `${diploma.firstName} ${diploma.lastName}`,
+                diploma.field,
+                diploma.year,
+                diploma.pdfHash
+            ];
+
+            values.forEach((value) => {
+
+                const cell = document.createElement("td");
+
+                cell.textContent = value ?? "";
+
+                row.appendChild(cell);
+            });
+
+            tableBody.appendChild(row);
+        });
+
+        dashboardStatus.textContent =
+            `${diplomas.length} diploma(s) registered.`;
+
     } catch (error) {
+
         dashboardStatus.textContent = error.message;
+
         console.error("Dashboard error:", error);
     }
 }
 
-function renderHistory(records) {
-    const history = document.getElementById("historyList");
-    history.replaceChildren();
-    records.slice().sort((a,b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)).slice(0,4).forEach(d => {
-        const item = document.createElement("div");
-        item.className = "history-item";
-        const who = document.createElement("span");
-        who.textContent = `${d.firstName || ""} ${d.lastName || ""} · ${d.field || ""}`;
-        const when = document.createElement("span");
-        when.textContent = d.createdAt ? new Date(d.createdAt).toLocaleDateString("fr-FR") : "Date inconnue";
-        item.append(who, when);
-        history.appendChild(item);
-    });
-    if (!records.length) history.innerHTML = '<p class="muted">Aucun enregistrement pour le moment.</p>';
-}
-
-async function revokeDiploma(pdfHash, button) {
-    if (!diplomaContract || !walletAddress) {
-        showTransactionStatus("Connectez le portefeuille propriétaire du contrat avant de révoquer.", "error");
-        document.getElementById("issueModal").hidden = false;
-        return;
-    }
-    const record = diplomaRecords.find(d => d.pdfHash === pdfHash);
-    const name = record ? `${record.firstName} ${record.lastName}` : "ce diplôme";
-    if (!window.confirm(`Confirmer la révocation du diplôme de ${name} ? Cette opération est irréversible.`)) return;
-
-    button.disabled = true;
-    try {
-        const onChain = await diplomaContract.verifierDiplome("0x" + pdfHash.replace(/^0x/, ""));
-        if (!onChain.existe) throw new Error("Ce hash n'existe pas dans le contrat.");
-        if (!onChain.valide) throw new Error("Ce diplôme est déjà révoqué.");
-        showTransactionStatus("Confirmez la révocation dans MetaMask…", "pending");
-        const tx = await diplomaContract.revoquerDiplome("0x" + pdfHash.replace(/^0x/, ""));
-        showTransactionStatus("Transaction envoyée. Attente de confirmation…", "pending");
-        const receipt = await tx.wait();
-        if (!receipt || receipt.status !== 1) throw new Error("La transaction de révocation a échoué.");
-        showTransactionStatus("Diplôme révoqué avec succès sur Sepolia.", "success");
-        await loadDiplomas();
-    } catch (error) {
-        console.error("Revoke error:", error);
-        showTransactionStatus("Révocation impossible : " + (error.shortMessage || error.message), "error");
-        button.disabled = false;
-    }
-}
 
 /* =====================================================
-   9. DASHBOARD CONTROLS
+   9. REFRESH DASHBOARD
 ===================================================== */
 
-document.getElementById("refreshDiplomas").addEventListener("click", loadDiplomas);
-document.getElementById("searchDiplomas").addEventListener("input", renderDiplomas);
-document.getElementById("statusFilter").addEventListener("change", renderDiplomas);
-document.getElementById("sortDiplomas").addEventListener("change", renderDiplomas);
+document.getElementById("refreshDiplomas")
+    .addEventListener("click", loadDiplomas);
 
-const issueModal = document.getElementById("issueModal");
-function openIssueModal() { issueModal.hidden = false; }
-function closeIssueModal() { issueModal.hidden = true; }
-document.getElementById("openIssue").addEventListener("click", openIssueModal);
-document.getElementById("closeIssue").addEventListener("click", closeIssueModal);
-document.getElementById("cancelIssue").addEventListener("click", closeIssueModal);
-issueModal.addEventListener("click", event => { if (event.target === issueModal) closeIssueModal(); });
 
 /* =====================================================
    10. INITIALIZE ADMIN DASHBOARD
