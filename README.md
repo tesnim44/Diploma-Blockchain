@@ -121,6 +121,9 @@ Les diagrammes ci-dessous sont des fichiers SVG versionnés dans le dépôt. Cet
 
 ## 4. Architecture
 
+Pour le détail des composants, des responsabilités, des parcours d'émission et de vérification, des états possibles et des règles de cohérence, consulter [la documentation d'architecture](docs/architecture.md).
+
+
 ![Architecture globale du système](docs/diagrams/architecture-globale.svg)
 
 *Figure 3 — Architecture globale : l'émission passe par l'Admin, MetaMask et le contrat ; la vérification publique lit le contrat sans signature. MongoDB conserve uniquement les métadonnées administratives.*
