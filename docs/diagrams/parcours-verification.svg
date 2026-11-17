@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="820" viewBox="0 0 1200 820" role="img" aria-labelledby="title desc">
+<title id="title">Parcours de vérification d'un diplôme</title><desc id="desc">Le vérificateur fournit le PDF, le navigateur calcule le SHA-256 et lit le smart contract. Le résultat dépend de l'existence et du statut du diplôme.</desc>
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0 0 L9 3 L0 6 Z" fill="#64748b"/></marker><style>
+.bg{fill:#f8fafc}.title{font:700 34px Arial;fill:#102a43}.sub{font:18px Arial;fill:#526579}.node{fill:#fff;stroke:#9bb4cc;stroke-width:2;rx:16}.block{fill:#eaf2ff;stroke:#3675c5}.chain{fill:#e8f7ef;stroke:#26945d}.good{fill:#e8f7ef;stroke:#26945d}.bad{fill:#fff0ed;stroke:#d65b50}.unknown{fill:#f1f3f6;stroke:#8793a3}.txt{font:700 20px Arial;fill:#17324d;text-anchor:middle}.small{font:16px Arial;fill:#526579;text-anchor:middle}.arrow{stroke:#64748b;stroke-width:3;fill:none;marker-end:url(#arrow)}.tag{font:16px Arial;fill:#526579}
+</style></defs>
+<rect class="bg" width="1200" height="820" rx="24"/>
+<text class="title" x="60" y="70">3.2 — Parcours de vérification</text><text class="sub" x="60" y="108">La vérification publique lit directement le registre du Smart Contract</text>
+<rect class="node" x="390" y="145" width="420" height="76"/><text class="txt" x="600" y="176">Vérificateur</text><text class="small" x="600" y="201">Sélectionne le PDF original à contrôler</text>
+<path class="arrow" d="M600 221 V260"/>
+<rect class="node block" x="390" y="260" width="420" height="76"/><text class="txt" x="600" y="291">Interface publique</text><text class="small" x="600" y="316">Le fichier reste dans le navigateur</text>
+<path class="arrow" d="M600 336 V375"/>
+<rect class="node block" x="390" y="375" width="420" height="76"/><text class="txt" x="600" y="406">Calcul SHA-256</text><text class="small" x="600" y="431">Même algorithme que lors de l'émission</text>
+<path class="arrow" d="M600 451 V490"/>
+<rect class="node chain" x="390" y="490" width="420" height="76"/><text class="txt" x="600" y="521">Lecture du Smart Contract</text><text class="small" x="600" y="546">verifierDiplome(hash) — lecture sans transaction</text>
+<path class="arrow" d="M600 566 V605"/>
+<polygon points="600,605 760,670 600,735 440,670" fill="#fff" stroke="#9bb4cc" stroke-width="2"/><text class="txt" x="600" y="664">Diplôme enregistré ?</text><text class="small" x="600" y="689">existe</text>
+<path class="arrow" d="M440 670 H220 V755"/><text class="tag" x="285" y="652">Non</text>
+<rect class="node unknown" x="90" y="755" width="260" height="55"/><text class="txt" x="220" y="790">Introuvable</text>
+<path class="arrow" d="M760 670 H980 V755"/><text class="tag" x="850" y="652">Oui</text>
+<rect class="node good" x="850" y="755" width="260" height="55"/><text class="txt" x="980" y="790">Vérifier le statut</text>
+<text class="tag" x="60" y="790">Le résultat dépend du hash du fichier exact.</text>
+</svg>
