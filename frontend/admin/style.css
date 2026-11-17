@@ -287,3 +287,24 @@ button:disabled {
         font-size: 26px;
     }
 }
+
+
+/* DIPLOMA REVOCATION ACTION */
+.revoke-button {
+    background: #fff0ee;
+    color: #b42318;
+    border: 1px solid #f3c2bd;
+    border-radius: 7px;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.revoke-button:hover {
+    background: #ffe2de;
+}
+
+.revoke-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
