@@ -6,6 +6,7 @@
   --unk: #566072; --unk-bg: #eceef2;
 }
 * { box-sizing: border-box; }
+*[hidden] { display: none !important; }
 html { scroll-behavior: smooth; }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
 h1, h2, h3 { line-height: 1.2; margin: 0; }
