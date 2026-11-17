@@ -109,7 +109,7 @@ Les diagrammes ci-dessous sont des fichiers SVG versionnés dans le dépôt. Cet
 
 ![Diagramme du parcours de vérification](docs/diagrams/parcours-verification.svg)
 
-*Figure 2 — Vérification : l'interface publique calcule le hash du PDF et lit le contrat. MongoDB n'intervient pas dans la décision d'authenticité.*
+*Figure 2 — Vérification : l'interface publique calcule le hash du PDF et lit le contrat. Elle distingue les trois états du registre : authentique, révoqué et introuvable. MongoDB n'intervient pas dans cette décision.*
 
 > **Important :** un QR Code qui contient uniquement un identifiant
 > permet de retrouver un enregistrement, mais ne prouve pas à lui seul
@@ -120,6 +120,10 @@ Les diagrammes ci-dessous sont des fichiers SVG versionnés dans le dépôt. Cet
 ------------------------------------------------------------------------
 
 ## 4. Architecture
+
+![Architecture globale du système](docs/diagrams/architecture-globale.svg)
+
+*Figure 3 — Architecture globale : l'émission passe par l'Admin, MetaMask et le contrat ; la vérification publique lit le contrat sans signature. MongoDB conserve uniquement les métadonnées administratives.*
 
 Le projet est organisé en plusieurs composants complémentaires.
 
@@ -170,7 +174,21 @@ MongoDB ne remplace pas la preuve blockchain. Une donnée présente dans
 MongoDB ne suffit pas à déclarer un diplôme authentique : la
 vérification doit se référer au Smart Contract.
 
-### 4.2 Pourquoi SHA-256 ?
+### 4.2 Résultats de vérification et révocation
+
+La fonction `verifierDiplome(bytes32)` renvoie notamment deux indicateurs : `existe` et `valide`. L'interface publique affiche trois résultats :
+
+| Résultat public | Condition retournée par le contrat | Signification |
+|---|---|---|
+| **AUTHENTIQUE** | `existe = true` et `valide = true` | Le hash est enregistré et le diplôme est encore valide. |
+| **RÉVOQUÉ** | `existe = true` et `valide = false` | Le hash est enregistré, mais l'université a révoqué le diplôme. |
+| **INTROUVABLE** | `existe = false` | Le hash du PDF n'est pas présent dans le registre. |
+
+La révocation ne supprime pas le diplôme de la blockchain : elle modifie son statut `valide` à `false`. Seul le propriétaire (`owner`) du contrat peut appeler `revoquerDiplome(bytes32)` grâce au modificateur `onlyOwner`. L'interface publique reste en lecture seule et n'a pas besoin de MetaMask pour afficher le statut.
+
+### 4.3 Pourquoi SHA-256 ?
+
+### 4.4 Pourquoi SHA-256 ?
 
 SHA-256 est une fonction de hachage cryptographique. Elle transforme le
 contenu du PDF en une empreinte de longueur fixe de 256 bits,
