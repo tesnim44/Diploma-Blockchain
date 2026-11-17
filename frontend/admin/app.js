@@ -464,7 +464,7 @@ async function loadDiplomas() {
             return;
         }
 
-        diplomas.forEach((diploma) => {
+        for (const diploma of diplomas) {
 
             const row = document.createElement("tr");
 
@@ -573,7 +573,7 @@ async function loadDiplomas() {
             row.appendChild(statusCell);
             row.appendChild(actionCell);
             tableBody.appendChild(row);
-        });
+        }
 
         dashboardStatus.textContent =
             `${diplomas.length} diploma(s) registered.`;
