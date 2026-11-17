@@ -477,14 +477,101 @@ async function loadDiplomas() {
             ];
 
             values.forEach((value) => {
-
                 const cell = document.createElement("td");
-
                 cell.textContent = value ?? "";
-
                 row.appendChild(cell);
             });
 
+            // Read the diploma status directly from the smart contract.
+            const statusCell = document.createElement("td");
+            const actionCell = document.createElement("td");
+
+            if (diplomaContract) {
+                try {
+                    const hashBytes32 = "0x" + diploma.pdfHash.replace(/^0x/, "");
+                    const result = await diplomaContract.verifierDiplome(hashBytes32);
+
+                    if (!result.existe) {
+                        statusCell.textContent = "Introuvable";
+                    } else if (!result.valide) {
+                        statusCell.textContent = "Révoqué";
+                    } else {
+                        statusCell.textContent = "Authentique";
+
+                        const revokeButton = document.createElement("button");
+                        revokeButton.type = "button";
+                        revokeButton.textContent = "Révoquer";
+                        revokeButton.className = "revoke-button";
+                        revokeButton.addEventListener("click", async () => {
+                            const confirmed = window.confirm(
+                                `Voulez-vous vraiment révoquer le diplôme de ${diploma.firstName} ${diploma.lastName} ? Cette action est irréversible.`
+                            );
+
+                            if (!confirmed) return;
+
+                            try {
+                                if (!diplomaContract || !walletAddress) {
+                                    throw new Error("Connectez le portefeuille propriétaire du contrat.");
+                                }
+
+                                revokeButton.disabled = true;
+                                revokeButton.textContent = "En attente…";
+
+                                showTransactionStatus(
+                                    "Confirmez la révocation dans MetaMask…",
+                                    "pending"
+                                );
+
+                                // Recheck status before sending the transaction.
+                                const current = await diplomaContract.verifierDiplome(hashBytes32);
+
+                                if (!current.existe || !current.valide) {
+                                    throw new Error("Ce diplôme est introuvable ou déjà révoqué.");
+                                }
+
+                                const tx = await diplomaContract.revoquerDiplome(hashBytes32);
+
+                                showTransactionStatus(
+                                    "Transaction envoyée. Attente de confirmation…",
+                                    "pending"
+                                );
+
+                                const receipt = await tx.wait();
+
+                                if (!receipt || receipt.status !== 1) {
+                                    throw new Error("La transaction de révocation a échoué.");
+                                }
+
+                                showTransactionStatus(
+                                    "Diplôme révoqué avec succès sur Sepolia.",
+                                    "success"
+                                );
+
+                                await loadDiplomas();
+
+                            } catch (error) {
+                                console.error("Revocation error:", error);
+                                showTransactionStatus(
+                                    "Révocation impossible : " + error.message,
+                                    "error"
+                                );
+                                revokeButton.disabled = false;
+                                revokeButton.textContent = "Révoquer";
+                            }
+                        });
+
+                        actionCell.appendChild(revokeButton);
+                    }
+                } catch (error) {
+                    statusCell.textContent = "Statut indisponible";
+                    console.error("Diploma status error:", error);
+                }
+            } else {
+                statusCell.textContent = "Connectez MetaMask";
+            }
+
+            row.appendChild(statusCell);
+            row.appendChild(actionCell);
             tableBody.appendChild(row);
         });
 
