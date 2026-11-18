@@ -1,6 +1,6 @@
 # Architecture du système
 
-Cette documentation décrit les composants et les parcours de l'application DiplomaChain à partir du code du dépôt.
+Cette documentation décrit les composants et les parcours de l'application Trusted! à partir du code du dépôt.
 
 ![Architecture globale](diagrams/architecture-globale.svg)
 
