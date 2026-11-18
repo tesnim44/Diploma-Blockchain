@@ -45,7 +45,7 @@ universitaires, aux recruteurs et aux diplômés. La vérification manuelle
 de documents papier ou PDF peut être longue et ne garantit pas toujours
 que le document présenté est original.
 
-**DiplomaChain** propose une solution de certification fondée sur la
+**Trusted!** propose une solution de certification fondée sur la
 blockchain. Lorsqu'un diplôme est émis, l'application calcule son
 empreinte numérique avec **SHA-256**. Cette empreinte est ensuite
 enregistrée dans un **Smart Contract Solidity** déployé sur le réseau de
@@ -997,7 +997,7 @@ Les livrables attendus pour une présentation complète sont :
 
 ## Conclusion
 
-DiplomaChain combine la blockchain Ethereum, la cryptographie SHA-256 et
+Trusted! combine la blockchain Ethereum, la cryptographie SHA-256 et
 une application web pour proposer un processus de certification et de
 vérification des diplômes. Le Smart Contract applique les règles
 d'émission, de consultation et de révocation ; MetaMask autorise les
