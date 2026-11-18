@@ -190,7 +190,6 @@ La révocation ne supprime pas le diplôme de la blockchain : elle modifie son s
 
 ### 4.3 Pourquoi SHA-256 ?
 
-### 4.4 Pourquoi SHA-256 ?
 
 SHA-256 est une fonction de hachage cryptographique. Elle transforme le
 contenu du PDF en une empreinte de longueur fixe de 256 bits,
