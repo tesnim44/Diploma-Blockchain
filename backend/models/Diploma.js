@@ -39,10 +39,6 @@ const diplomaSchema = new mongoose.Schema(
             match: /^[a-fA-F0-9]{64}$/
         },
 
-        transactionHash: {
-            type: String,
-            default: null
-        }
     },
     {
         timestamps: true
