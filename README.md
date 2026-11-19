@@ -1,3 +1,4 @@
+# DiplomaChain --- Certification et vérification de diplômes sur blockchain
 
 > Application de certification de diplômes universitaires basée sur
 > Ethereum. L'université émet un diplôme depuis une interface
@@ -29,12 +30,13 @@
     transactions](#14-intégration-metamask-et-gestion-des-transactions)
 -   [15. Répartition des rôles et intégration
     d'équipe](#15-répartition-des-rôles-et-intégration-déquipe)
--  
--   [16. Dépannage](#16-dépannage)
--   [17. Sécurité et bonnes pratiques](#17-sécurité-et-bonnes-pratiques)
--   [18. Limites et améliorations
-    possibles](#18-limites-et-améliorations-possibles)
--   [19. Livrables](#19-livrables)
+-   [16. Démonstration proposée pour la
+    soutenance](#16-démonstration-proposée-pour-la-soutenance)
+-   [17. Dépannage](#17-dépannage)
+-   [18. Sécurité et bonnes pratiques](#18-sécurité-et-bonnes-pratiques)
+-   [19. Limites et améliorations
+    possibles](#19-limites-et-améliorations-possibles)
+-   [20. Livrables](#20-livrables)
 
 ------------------------------------------------------------------------
 
@@ -95,20 +97,38 @@ données centralisée ?
 
 ## 3. Fonctionnement général
 
-Les diagrammes ci-dessous sont des fichiers SVG versionnés dans le dépôt. Cette méthode évite les erreurs de rendu Mermaid dans certains aperçus Markdown et permet leur affichage direct sur GitHub et dans les lecteurs Markdown compatibles.
-
-
 ### 3.1 Parcours d'émission
 
-![Diagramme du parcours d'émission](docs/diagrams/parcours-emission.svg)
-
-*Figure 1 — Émission : le hash est enregistré sur Sepolia après validation et signature par l'administrateur. Les métadonnées sont ensuite sauvegardées dans MongoDB.*
+``` mermaid
+flowchart TD
+    A["Administrateur"] --> B["Interface Admin"]
+    B --> C["Saisie des informations et sélection du PDF"]
+    C --> D["Calcul SHA-256 dans le navigateur"]
+    D --> E["Connexion MetaMask"]
+    E --> F["Vérification du réseau et du compte"]
+    F --> G["Appel du Smart Contract"]
+    G --> H{"Règles respectées ?"}
+    H -- "Non" --> I["Transaction refusée / message d'erreur"]
+    H -- "Oui" --> J["Émission sur Sepolia"]
+    J --> K["Attente de confirmation"]
+    K --> L["Enregistrement des métadonnées dans MongoDB"]
+    L --> M["Mise à jour du tableau de bord"]
+```
 
 ### 3.2 Parcours de vérification
 
-![Diagramme du parcours de vérification](docs/diagrams/parcours-verification.svg)
-
-*Figure 2 — Vérification : l'interface publique calcule le hash du PDF et lit le contrat. Elle distingue les trois états du registre : authentique, révoqué et introuvable. MongoDB n'intervient pas dans cette décision.*
+``` mermaid
+flowchart TD
+    A["Recruteur / vérificateur"] --> B["Interface publique ou QR Code"]
+    B --> C["Obtention du fichier ou de son identifiant"]
+    C --> D["Calcul SHA-256 si le PDF est fourni"]
+    D --> E["Lecture du Smart Contract"]
+    E --> F{"Diplôme enregistré ?"}
+    F -- "Non" --> G["NON AUTHENTIQUE / INTROUVABLE"]
+    F -- "Oui" --> H{"Diplôme valide ?"}
+    H -- "Oui" --> I["AUTHENTIQUE"]
+    H -- "Non" --> J["RÉVOQUÉ"]
+```
 
 > **Important :** un QR Code qui contient uniquement un identifiant
 > permet de retrouver un enregistrement, mais ne prouve pas à lui seul
@@ -119,13 +139,6 @@ Les diagrammes ci-dessous sont des fichiers SVG versionnés dans le dépôt. Cet
 ------------------------------------------------------------------------
 
 ## 4. Architecture
-
-Pour le détail des composants, des responsabilités, des parcours d'émission et de vérification, des états possibles et des règles de cohérence, consulter [la documentation d'architecture](docs/architecture.md).
-
-
-![Architecture globale du système](docs/diagrams/architecture.png)
-
-*Figure 3 — Architecture globale : l'émission passe par l'Admin, MetaMask et le contrat ; la vérification publique lit le contrat sans signature. MongoDB conserve uniquement les métadonnées administratives.*
 
 Le projet est organisé en plusieurs composants complémentaires.
 
@@ -176,20 +189,7 @@ MongoDB ne remplace pas la preuve blockchain. Une donnée présente dans
 MongoDB ne suffit pas à déclarer un diplôme authentique : la
 vérification doit se référer au Smart Contract.
 
-### 4.2 Résultats de vérification et révocation
-
-La fonction `verifierDiplome(bytes32)` renvoie notamment deux indicateurs : `existe` et `valide`. L'interface publique affiche trois résultats :
-
-| Résultat public | Condition retournée par le contrat | Signification |
-|---|---|---|
-| **AUTHENTIQUE** | `existe = true` et `valide = true` | Le hash est enregistré et le diplôme est encore valide. |
-| **RÉVOQUÉ** | `existe = true` et `valide = false` | Le hash est enregistré, mais l'université a révoqué le diplôme. |
-| **INTROUVABLE** | `existe = false` | Le hash du PDF n'est pas présent dans le registre. |
-
-La révocation ne supprime pas le diplôme de la blockchain : elle modifie son statut `valide` à `false`. Seul le propriétaire (`owner`) du contrat peut appeler `revoquerDiplome(bytes32)` grâce au modificateur `onlyOwner`. L'interface publique reste en lecture seule et n'a pas besoin de MetaMask pour afficher le statut.
-
-### 4.3 Pourquoi SHA-256 ?
-
+### 4.2 Pourquoi SHA-256 ?
 
 SHA-256 est une fonction de hachage cryptographique. Elle transforme le
 contenu du PDF en une empreinte de longueur fixe de 256 bits,
@@ -243,7 +243,14 @@ Diploma-Blockchain/
 │   └── Diplomes.js
 │
 ├── scripts/
-│   └── deploy.js
+│   ├── deploy.js
+│   ├── blocks.js
+│   └── visualize_diploma.js
+│
+├── docs/
+│   └── images/
+│       ├── visualisation-bloc-hardhat.png
+│       └── visualisation-diplome-smart-contract.png
 │
 ├── frontend/
 │   ├── admin/
@@ -281,6 +288,12 @@ Diploma-Blockchain/
 -   `test/Diplomes.js` : tests du contrat.
 -   `frontend/admin/app.js` : connexion MetaMask, calcul du hash,
     émission et tableau de bord.
+-   `scripts/blocks.js` : surveillance des nouveaux blocs du nœud
+    Hardhat local.
+-   `scripts/visualize_diploma.js` : démonstration locale de l'émission
+    et de la lecture des informations d'un diplôme dans le contrat.
+-   `docs/images/` : captures de la visualisation des blocs et des
+    données du diplôme dans le terminal.
 -   `backend/server.js` : démarrage du serveur Express.
 -   `backend/models/Diploma.js` : modèle MongoDB.
 -   `backend/routes/diplomaRoutes.js` : routes de l'API.
@@ -683,20 +696,25 @@ sont pas nécessaires à la vérification.
 ### 13.2 Données MongoDB
 
 Le backend utilise Express et Mongoose pour gérer les métadonnées
-administratives. Les champs utilisés dans le modèle du projet
-comprennent notamment :
+administratives. Le modèle MongoDB conserve notamment :
 
 -   `diplomaId`
 -   `firstName`
 -   `lastName`
 -   `field`
 -   `year`
--   `pdfHash`
 -   `transactionHash`
 
-MongoDB permet de retrouver les diplômes dans le tableau de bord Admin.
-Il ne constitue pas la source définitive de vérité pour l'authenticité :
-cette décision repose sur le contrat blockchain.
+**Le champ `pdfHash` ne doit pas être enregistré dans MongoDB.** Le
+hash SHA-256 du PDF est transmis au Smart Contract et conservé dans le
+mapping Solidity `diplomes`. Le `transactionHash` conservé dans MongoDB
+est uniquement l'identifiant de la transaction Ethereum qui a effectué
+l'émission ; ce n'est pas le hash du PDF.
+
+MongoDB facilite la recherche et l'affichage des informations
+administratives dans le tableau de bord Admin. Il ne constitue pas la
+source de vérité pour l'authenticité : cette vérification doit lire le
+Smart Contract.
 
 ### 13.3 API backend
 
@@ -842,10 +860,132 @@ les conflits en vérifiant les fichiers concernés. Éviter
 remplacer l'historique distant et rendre les commits des coéquipiers
 inaccessibles depuis cette branche.
 
+------------------------------------------------------------------------
+
+## 16. Démonstration proposée pour la soutenance
+
+Préparer un PDF de test et un portefeuille Sepolia disposant de
+suffisamment d'ETH de test.
+
+### Scénario conseillé
+
+1.  Présenter le schéma d'architecture et les rôles des composants.
+2.  Montrer le Smart Contract et expliquer `onlyOwner`.
+3.  Lancer les tests Hardhat et présenter le résultat.
+4.  Démarrer MongoDB et le backend.
+5.  Ouvrir l'interface Admin.
+6.  Connecter MetaMask au réseau Sepolia avec le compte propriétaire.
+7.  Saisir les informations d'un étudiant et sélectionner un PDF.
+8.  Émettre le diplôme et confirmer la transaction dans MetaMask.
+9.  Montrer le hash de transaction et l'enregistrement dans le tableau
+    de bord.
+10. Vérifier le même PDF depuis l'interface publique : résultat attendu,
+    authentique.
+11. Tester un autre PDF : résultat attendu, introuvable.
+12. Si la révocation est disponible dans l'application, révoquer le
+    diplôme et refaire la vérification : résultat attendu, révoqué.
+
+### 16.1 Visualiser les blocs Ethereum dans le terminal (Hardhat local)
+
+Le dépôt contient `scripts/blocks.js`, un observateur qui écoute les
+nouveaux blocs du nœud Hardhat local et affiche leur numéro, timestamp,
+transactions, `parentHash`, nonce et hash. **Ce script n'exécute pas le
+nœud et ne crée pas lui-même de blocs** : il attend qu'une autre
+commande envoie des transactions au réseau local.
+
+Ouvrir trois terminaux à la racine du projet.
+
+**Terminal 1 — démarrer la blockchain locale :**
+
+``` powershell
+npx hardhat node
+```
+
+Laisser ce terminal ouvert. Il démarre le RPC local sur
+`http://127.0.0.1:8545` et affiche les comptes de test Hardhat.
+
+**Terminal 2 — démarrer l'observateur de blocs :**
+
+``` powershell
+npx hardhat run scripts/blocks.js --network localhost
+```
+
+Le message `Waiting for new blocks...` est normal : l'observateur attend
+une nouvelle transaction/bloc.
+
+**Terminal 3 — créer une transaction de démonstration :**
+
+``` powershell
+npx hardhat run scripts/visualize_diploma.js --network localhost
+```
+
+Ce script de démonstration déploie un contrat sur le réseau local,
+émet un diplôme avec des données de test, attend la confirmation et
+lit les informations retournées par `verifierDiplome()`. Le déploiement
+et l'émission produisent des blocs qui apparaissent dans le Terminal 2.
+
+**Important :** Hardhat local et Sepolia sont deux réseaux séparés. Les
+blocs affichés ici sont des blocs locaux de démonstration ; ils ne sont
+pas les blocs du contrat Sepolia. Pour observer une transaction Sepolia,
+utiliser l'explorateur Sepolia et l'adresse du contrat déployé.
+
+#### Captures de la démonstration
+
+**Surveillance des blocs locaux — `scripts/blocks.js` :**
+
+![Visualisation d'un bloc Hardhat dans le terminal](docs/images/visualisation-bloc-hardhat.png)
+
+**Lecture de la structure du diplôme — `scripts/visualize_diploma.js` :**
+
+![Lecture des données du diplôme dans le terminal](docs/images/visualisation-diplome-smart-contract.png)
+
+Dans la seconde capture, `verifierDiplome()` renvoie les champs dans
+l'ordre `existe`, `valide`, `nom`, `date`. Le hash affiché avant la
+transaction est le hash du PDF utilisé pour la démonstration. Il faut
+l'afficher à partir de la variable `hash` ; le premier élément retourné
+par `verifierDiplome()` est `existe` (un booléen), et non le hash.
+
+### Questions possibles du jury
+
+**Pourquoi utiliser SHA-256 ?**\
+Pour obtenir une empreinte du fichier. Une modification du PDF produit
+une empreinte différente, ce qui permet de détecter une altération.
+
+**Pourquoi enregistrer le hash plutôt que le PDF complet sur la
+blockchain ?**\
+Le hash est beaucoup plus léger et permet de vérifier l'intégrité sans
+publier le document complet sur une blockchain publique.
+
+**Pourquoi utiliser `onlyOwner` ?**\
+Pour empêcher un compte non autorisé d'émettre ou de révoquer un
+diplôme.
+
+**Quelle est la différence entre `verifierDiplome` et `emettreDiplome`
+?**\
+`verifierDiplome` est une lecture (`view`) qui ne modifie pas l'état du
+contrat. `emettreDiplome` modifie l'état et nécessite une transaction
+signée.
+
+**Pourquoi utiliser MongoDB si les données sont déjà sur la blockchain
+?**\
+MongoDB facilite la gestion et l'affichage des métadonnées. La preuve
+d'authenticité reste vérifiée sur la blockchain.
+
+**Que se passe-t-il si MongoDB échoue après une émission confirmée ?**\
+Le diplôme reste enregistré sur la blockchain. Il faut corriger la
+sauvegarde des métadonnées sans réémettre le même diplôme.
+
+**Que signifie révoquer un diplôme ?**\
+Le contrat conserve l'enregistrement, mais passe son statut à invalide.
+La révocation ne supprime pas l'historique.
+
+**Un QR Code suffit-il à prouver qu'un PDF est authentique ?**\
+Non, pas s'il ne contient qu'un identifiant. Pour vérifier le fichier
+présenté, il faut recalculer son hash et le comparer au hash enregistré.
 
 ------------------------------------------------------------------------
 
-## 16. Dépannage
+## 17. Dépannage
 
   --------------------------------------------------------------------------
   Problème                Cause possible          Vérification / solution
@@ -920,7 +1060,7 @@ git status
 
 ------------------------------------------------------------------------
 
-## 17. Sécurité et bonnes pratiques
+## 18. Sécurité et bonnes pratiques
 
 -   Ne jamais ajouter `.env` au dépôt Git.
 -   Ne jamais publier une clé privée ou une phrase de récupération
@@ -941,7 +1081,7 @@ git status
 
 ------------------------------------------------------------------------
 
-## 18. Limites et améliorations possibles
+## 19. Limites et améliorations possibles
 
 ### Limites
 
@@ -977,20 +1117,20 @@ git status
 
 ------------------------------------------------------------------------
 
-## 19. Livrables
+## 20. Livrables
 
 Les livrables attendus pour une présentation complète sont :
 
--   [ ] Code source du Smart Contract Solidity.
--   [ ] Tests unitaires Hardhat et résultat d'exécution.
--   [ ] Adresse du contrat déployé et ABI correspondante.
--   [ ] Interface Admin fonctionnelle.
--   [ ] Interface publique de vérification.
--   [ ] Backend Express et modèle MongoDB.
--   [ ] Fichier `.env.example` sans secret réel, si nécessaire.
--   [ ] Schéma d'architecture et diagrammes des parcours.
--   [ ] README avec installation, configuration et commandes.
--   [ ] Démonstration en direct sur Sepolia.
+-    Code source du Smart Contract Solidity.
+-    Tests unitaires Hardhat et résultat d'exécution.
+-    Adresse du contrat déployé et ABI correspondante.
+-    Interface Admin fonctionnelle.
+-    Interface publique de vérification.
+-    Backend Express et modèle MongoDB.
+-    Fichier `.env.example` sans secret réel, si nécessaire.
+-    Schéma d'architecture et diagrammes des parcours.
+-    README avec installation, configuration et commandes.
+-    Démonstration en direct sur Sepolia.
 
 ------------------------------------------------------------------------
 
