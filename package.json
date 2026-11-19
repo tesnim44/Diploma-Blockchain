@@ -1,0 +1,34 @@
+{
+  "name": "diploma-blockchain",
+  "version": "1.0.0",
+  "description": "A blockchain-based diploma verification system that ensures the authenticity and integrity of academic certificates.  Universities can issue and revoke diplomas through an administrative interface, while recruiters can upload PDF certificates and verify their authenticity through a public interface.",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tesnim44/Diploma-Blockchain.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tesnim44/Diploma-Blockchain/issues"
+  },
+  "homepage": "https://github.com/tesnim44/Diploma-Blockchain#readme",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.10",
+    "ethers": "^6.17.0",
+    "express": "^5.3.0",
+    "mongoose": "^9.12.1"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^6.1.2",
+    "hardhat": "^2.29.2"
+  }
+}

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+<title id="title">Parcours d'émission d'un diplôme</title><desc id="desc">L'administrateur saisit les données, le navigateur calcule le hash PDF, MetaMask signe l'émission sur Sepolia, puis les métadonnées sont sauvegardées dans MongoDB.</desc>
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0 0 L9 3 L0 6 Z" fill="#64748b"/></marker><style>
+.bg{fill:#f8fafc}.title{font:700 34px Arial;fill:#102a43}.sub{font:18px Arial;fill:#526579}.node{fill:#fff;stroke:#9bb4cc;stroke-width:2;rx:16}.block{fill:#eaf2ff;stroke:#3675c5}.chain{fill:#e8f7ef;stroke:#26945d}.db{fill:#fff4df;stroke:#d49a2a}.txt{font:700 21px Arial;fill:#17324d;text-anchor:middle}.small{font:17px Arial;fill:#526579;text-anchor:middle}.arrow{stroke:#64748b;stroke-width:3;fill:none;marker-end:url(#arrow)}.tag{font:16px Arial;fill:#526579}
+</style></defs>
+<rect class="bg" width="1200" height="900" rx="24"/>
+<text class="title" x="60" y="70">3.1 — Parcours d'émission</text><text class="sub" x="60" y="108">De la sélection du PDF à la confirmation et à l'archivage des métadonnées</text>
+<rect class="node" x="390" y="145" width="420" height="82"/><text class="txt" x="600" y="178">Administrateur</text><text class="small" x="600" y="204">Saisit les informations du diplômé</text>
+<path class="arrow" d="M600 227 V265"/>
+<rect class="node block" x="390" y="265" width="420" height="82"/><text class="txt" x="600" y="298">Interface Admin</text><text class="small" x="600" y="324">Sélection du fichier PDF</text>
+<path class="arrow" d="M600 347 V385"/>
+<rect class="node block" x="390" y="385" width="420" height="82"/><text class="txt" x="600" y="418">Calcul SHA-256</text><text class="small" x="600" y="444">Empreinte calculée dans le navigateur</text>
+<path class="arrow" d="M600 467 V505"/>
+<rect class="node" x="390" y="505" width="420" height="82"/><text class="txt" x="600" y="538">MetaMask</text><text class="small" x="600" y="564">L'administrateur confirme la transaction</text>
+<path class="arrow" d="M600 587 V625"/>
+<rect class="node chain" x="390" y="625" width="420" height="82"/><text class="txt" x="600" y="658">Smart Contract — Sepolia</text><text class="small" x="600" y="684">Vérifie les règles et enregistre le hash</text>
+<path class="arrow" d="M600 707 V745"/>
+<rect class="node db" x="390" y="745" width="420" height="82"/><text class="txt" x="600" y="778">Backend / MongoDB</text><text class="small" x="600" y="804">Sauvegarde les métadonnées après confirmation</text>
+<text class="tag" x="845" y="666">Transaction confirmée</text><path class="arrow" d="M810 666 H970 V786 H845"/>
+<text class="tag" x="60" y="875">La blockchain conserve la preuve d'authenticité ; MongoDB facilite la gestion administrative.</text>
+</svg>

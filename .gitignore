@@ -1,0 +1,25 @@
+
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Hardhat and build files
+artifacts/
+cache/
+typechain-types/
+coverage/
+coverage.json
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+
+# Operating system and editor
+.DS_Store
+Thumbs.db
+.vscode/

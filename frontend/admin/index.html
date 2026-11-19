@@ -1,0 +1,160 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Administration - Certification Blockchain</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header class="header">
+<span>Trusted!</span>
+        
+<div class="header-right">
+    <span>Administration universitaire</span>
+
+    <span id="walletAddress">
+        Wallet not connected
+    </span>
+
+    <span id="networkName">
+        Network: Not connected
+    </span>
+
+    <button type="button" id="connectWallet">
+        Connect MetaMask
+    </button>
+</div>
+
+    </header>
+
+    <main class="container">
+
+        <section class="welcome">
+            <h1>Émettre un diplôme</h1>
+            <p>
+                Enregistrez un nouveau diplôme sur la blockchain
+                et garantissez son authenticité.
+            </p>
+        </section>
+
+        <section class="form-card">
+
+            <h2>Informations de l'étudiant</h2>
+
+            <form id="diplomaForm">
+
+                <div class="form-group">
+                    <label for="firstName">Prénom</label>
+                    <input
+                        type="text"
+                        id="firstName"
+                        placeholder="Ex : Ahmed"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="lastName">Nom</label>
+                    <input
+                        type="text"
+                        id="lastName"
+                        placeholder="Ex : Ben Ali"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="field">Filière</label>
+                    <input
+                        type="text"
+                        id="field"
+                        placeholder="Ex : Informatique"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="year">Année d'obtention</label>
+                    <input
+                        type="number"
+                        id="year"
+                        placeholder="Ex : 2026"
+                        min="2000"
+                        max="2100"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="diplomaFile">Fichier du diplôme (PDF)</label>
+                    <input
+                        type="file"
+                        id="diplomaFile"
+                        accept=".pdf,application/pdf"
+                        required
+                    >
+                </div>
+
+                <button type="submit" id="issueButton">
+                    Préparer le diplôme
+                </button>
+
+            </form>
+
+            <div id="status" class="status">
+                En attente de vos informations...
+            </div>
+
+        </section>
+
+<section class="dashboard">
+
+    <div class="dashboard-header">
+        <div>
+            <h2>Registered Diplomas</h2>
+            <p>Manage the diplomas registered by the university.</p>
+        </div>
+
+        <button type="button" id="refreshDiplomas">
+            Refresh
+        </button>
+    </div>
+
+    <p id="dashboardStatus">Loading diplomas...</p>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Diploma ID</th>
+                    <th>Student</th>
+                    <th>Field</th>
+                    <th>Year</th>
+                    <th>PDF Hash</th>
+                    <th>Statut</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody id="diplomasTableBody">
+            </tbody>
+        </table>
+    </div>
+
+</section>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.17.0/dist/ethers.umd.min.js"></script>
+    <script src="app.js"></script>
+    
+</body>
+</html>
+

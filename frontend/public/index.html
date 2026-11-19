@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vérification de diplôme sur blockchain</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 2l8 3v6c0 5-3.4 9-8 11-4.6-2-8-6-8-11V5z"/><path d="M8.5 12l2.5 2.5L16 9.5"/></svg>
+    <span>Trusted!</span>
+  </div>
+  <nav>
+    <a href="#verifier">Vérifier</a>
+    <a href="#comment">Comment ça marche</a>
+    <a href="#faq">Questions</a>
+  </nav>
+  <span class="net"><i></i> Sepolia</span>
+</header>
+
+<section class="hero">
+  <div class="hero-inner">
+    <h1>Un diplôme est-il authentique ?<br>La blockchain répond en quelques secondes.</h1>
+    <p>Déposez le PDF reçu du candidat. Nous comparons son empreinte numérique avec le registre de l'université, sans jamais envoyer le fichier.</p>
+    <a class="cta" href="#verifier">Vérifier un diplôme</a>
+  </div>
+</section>
+
+<main>
+  <section id="verifier" class="panel">
+    <h2>Vérification</h2>
+    
+    <label id="dropzone" for="pdf" tabindex="0">
+      <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 14h6M9 17h4"/></svg>
+      <strong id="dropText">Glissez le PDF ici</strong>
+      <span id="dropSub">ou cliquez pour le choisir (PDF uniquement)</span>
+      <input type="file" id="pdf" accept=".pdf,application/pdf" hidden>
+    </label>
+
+    <div id="fileInfo" class="fileinfo" hidden>
+      <span id="fileName"></span><span id="fileSize"></span>
+    </div>
+
+    <button id="verify" disabled>Vérifier le diplôme</button>
+
+    <ol id="progress" class="progress" aria-live="polite" aria-label="Progression de la vérification" hidden>
+      <li data-step="1">Lecture du fichier</li>
+      <li data-step="2">Calcul de l'empreinte</li>
+      <li data-step="3">Consultation de la blockchain</li>
+    </ol>
+
+    <section id="result" role="status" aria-live="polite" aria-atomic="true" hidden></section>
+
+    <button id="reset" class="ghost wide" type="button" hidden>Vérifier un autre diplôme</button>
+  </section>
+
+  <section id="comment" class="how">
+    <h2>Comment ça marche</h2>
+    <div class="cols">
+      <article>
+        <h3>1. L'université enregistre</h3>
+        <p>À la délivrance, l'empreinte du PDF est inscrite sur la blockchain par le compte officiel de l'université.</p>
+      </article>
+      <article>
+        <h3>2. Vous déposez le PDF</h3>
+        <p>Votre navigateur calcule l'empreinte du fichier. Une seule virgule modifiée donne une empreinte totalement différente.</p>
+      </article>
+      <article>
+        <h3>3. Le contrat compare</h3>
+        <p>L'empreinte est cherchée dans le registre : authentique, révoqué ou introuvable.</p>
+      </article>
+    </div>
+  </section>
+
+  <section id="legend" class="legend">
+    <h2>Les trois résultats possibles</h2>
+    <div class="cols">
+      <div class="chip ok"><strong>Authentique</strong><span>Enregistré et non révoqué.</span></div>
+      <div class="chip bad"><strong>Révoqué</strong><span>Enregistré mais annulé par l'université.</span></div>
+      <div class="chip unk"><strong>Introuvable</strong><span>Cette empreinte n'existe pas dans le registre.</span></div>
+    </div>
+  </section>
+
+  <section id="faq" class="faq">
+   </section>
+</main>
+
+<footer>
+  <p>Projet universitaire : certification de diplômes sur blockchain (réseau de test Sepolia).</p>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script>
+<script src="config.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
