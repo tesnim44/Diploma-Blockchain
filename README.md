@@ -30,13 +30,9 @@
     transactions](#14-intégration-metamask-et-gestion-des-transactions)
 -   [15. Répartition des rôles et intégration
     d'équipe](#15-répartition-des-rôles-et-intégration-déquipe)
--   [16. Démonstration proposée pour la
-    soutenance](#16-démonstration-proposée-pour-la-soutenance)
+-   [16. Démonstration](#16-démonstration)
 -   [17. Dépannage](#17-dépannage)
--   [18. Sécurité et bonnes pratiques](#18-sécurité-et-bonnes-pratiques)
--   [19. Limites et améliorations
-    possibles](#19-limites-et-améliorations-possibles)
--   [20. Livrables](#20-livrables)
+-   [18. Livrables](#18-livrables)
 
 ------------------------------------------------------------------------
 
@@ -1790,39 +1786,10 @@ sont complémentaires.
 -   Tous les membres doivent utiliser la même adresse de contrat, la
     même ABI et le même réseau.
 
-### Règles de collaboration Git
-
-Chaque membre travaille sur sa branche et synchronise régulièrement son
-travail. Avant un push, récupérer les changements distants et résoudre
-les conflits en vérifiant les fichiers concernés. Éviter
-`git push --force` sur une branche partagée : cette commande peut
-remplacer l'historique distant et rendre les commits des coéquipiers
-inaccessibles depuis cette branche.
 
 ------------------------------------------------------------------------
 
-## 16. Démonstration proposée pour la soutenance
-
-Préparer un PDF de test et un portefeuille Sepolia disposant de
-suffisamment d'ETH de test.
-
-### Scénario conseillé
-
-1.  Présenter le schéma d'architecture et les rôles des composants.
-2.  Montrer le Smart Contract et expliquer `onlyOwner`.
-3.  Lancer les tests Hardhat et présenter le résultat.
-4.  Démarrer MongoDB et le backend.
-5.  Ouvrir l'interface Admin.
-6.  Connecter MetaMask au réseau Sepolia avec le compte propriétaire.
-7.  Saisir les informations d'un étudiant et sélectionner un PDF.
-8.  Émettre le diplôme et confirmer la transaction dans MetaMask.
-9.  Montrer le hash de transaction et l'enregistrement dans le tableau
-    de bord.
-10. Vérifier le même PDF depuis l'interface publique : résultat attendu,
-    authentique.
-11. Tester un autre PDF : résultat attendu, introuvable.
-12. Si la révocation est disponible dans l'application, révoquer le
-    diplôme et refaire la vérification : résultat attendu, révoqué.
+## 16. Démonstration 
 
 ### 16.1 Visualiser les blocs Ethereum dans le terminal (Hardhat local)
 
@@ -1887,44 +1854,6 @@ l'ordre `existe`, `valide`, `nom`, `date`. Le hash affiché avant la
 transaction est le hash du PDF utilisé pour la démonstration. Il faut
 l'afficher à partir de la variable `hash` ; le premier élément retourné
 par `verifierDiplome()` est `existe` (un booléen), et non le hash.
-
-### Questions possibles du jury
-
-**Pourquoi utiliser SHA-256 ?**\
-Pour obtenir une empreinte du fichier. Une modification du PDF produit
-une empreinte différente, ce qui permet de détecter une altération.
-
-**Pourquoi enregistrer le hash plutôt que le PDF complet sur la
-blockchain ?**\
-Le hash est beaucoup plus léger et permet de vérifier l'intégrité sans
-publier le document complet sur une blockchain publique.
-
-**Pourquoi utiliser `onlyOwner` ?**\
-Pour empêcher un compte non autorisé d'émettre ou de révoquer un
-diplôme.
-
-**Quelle est la différence entre `verifierDiplome` et `emettreDiplome`
-?**\
-`verifierDiplome` est une lecture (`view`) qui ne modifie pas l'état du
-contrat. `emettreDiplome` modifie l'état et nécessite une transaction
-signée.
-
-**Pourquoi utiliser MongoDB si les données sont déjà sur la blockchain
-?**\
-MongoDB facilite la gestion et l'affichage des métadonnées. La preuve
-d'authenticité reste vérifiée sur la blockchain.
-
-**Que se passe-t-il si MongoDB échoue après une émission confirmée ?**\
-Le diplôme reste enregistré sur la blockchain. Il faut corriger la
-sauvegarde des métadonnées sans réémettre le même diplôme.
-
-**Que signifie révoquer un diplôme ?**\
-Le contrat conserve l'enregistrement, mais passe son statut à invalide.
-La révocation ne supprime pas l'historique.
-
-**Un QR Code suffit-il à prouver qu'un PDF est authentique ?**\
-Non, pas s'il ne contient qu'un identifiant. Pour vérifier le fichier
-présenté, il faut recalculer son hash et le comparer au hash enregistré.
 
 ------------------------------------------------------------------------
 
@@ -2003,64 +1932,9 @@ git status
 
 ------------------------------------------------------------------------
 
-## 18. Sécurité et bonnes pratiques
 
--   Ne jamais ajouter `.env` au dépôt Git.
--   Ne jamais publier une clé privée ou une phrase de récupération
-    MetaMask.
--   Utiliser un portefeuille de test pour Sepolia.
--   Vérifier le propriétaire du contrat avant toute émission.
--   Vérifier le réseau et l'adresse du contrat avant d'envoyer une
-    transaction.
--   Valider les entrées côté frontend et côté backend.
--   Ne pas considérer MongoDB comme la preuve définitive d'authenticité.
--   Éviter d'enregistrer des données personnelles inutiles sur une
-    blockchain publique.
--   Conserver le hash de transaction pour pouvoir auditer une émission.
--   Ne pas réémettre un diplôme après un échec MongoDB sans vérifier
-    d'abord la blockchain.
--   Protéger les branches partagées et éviter les force push non
-    coordonnés.
 
-------------------------------------------------------------------------
-
-## 19. Limites et améliorations possibles
-
-### Limites
-
--   Sepolia est un réseau de test ; le projet ne constitue pas encore un
-    déploiement de production.
--   Les transactions nécessitent des ETH de test et peuvent prendre du
-    temps à être confirmées.
--   Le propriétaire unique du contrat constitue un point de contrôle
-    centralisé.
--   Les données publiques d'un contrat Ethereum sont consultables par
-    tous.
--   Une sauvegarde MongoDB peut échouer indépendamment d'une transaction
-    blockchain déjà confirmée.
--   Un QR Code qui contient seulement un identifiant ne vérifie pas
-    automatiquement le contenu du PDF.
-
-### Améliorations possibles
-
--   Ajouter une gestion de plusieurs administrateurs avec des rôles.
--   Ajouter une stratégie de reprise automatique pour les métadonnées
-    non sauvegardées.
--   Partager une fonction SHA-256 commune entre l'interface Admin et
-    l'interface publique.
--   Ajouter des tests d'intégration frontend/backend et des tests de
-    bout en bout.
--   Ajouter une génération et une lecture de QR Code avec un lien de
-    vérification.
--   Ajouter un stockage de documents décentralisé (par exemple IPFS) si
-    le besoin est confirmé.
--   Ajouter une journalisation et un suivi des événements blockchain.
--   Prévoir une interface d'administration pour consulter les émissions
-    et révocations.
-
-------------------------------------------------------------------------
-
-## 20. Livrables
+## 18. Livrables
 
 Les livrables attendus pour une présentation complète sont :
 
